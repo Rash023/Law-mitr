@@ -7,6 +7,7 @@ import { useState } from "react";
 import Markdown from "markdown-it";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {questions} from "@/components/data/questions";
+interface SearchIconProps extends React.SVGProps<SVGSVGElement> {}
 import dotenv from "dotenv";
 dotenv.config()
 const API_SECRET="AIzaSyAekZwuOWfD418tH158IdFAxZinVeyKifc"
@@ -95,7 +96,7 @@ export default function Component() {
   );
 }
 
-function SearchIcon(props:any) {
+function SearchIcon(props:SearchIconProps) {
   return (
     <svg
       {...props}
