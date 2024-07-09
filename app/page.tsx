@@ -23,7 +23,7 @@ export default function Component() {
     const finalPrompt=defaultPrompt+query;
     const result = await model.generateContent(finalPrompt);
     const responseText = result.response.text();
-    const boldRegex = /\*\*(.*?)\*\*/g;
+    const boldRegex = /\*\*/g;
     const boldText = responseText.replace(boldRegex, '');
     setResponse(boldText);
   }
@@ -92,6 +92,7 @@ export default function Component() {
           />
         </div>
       </div>
+      
     </div>
   );
 }
