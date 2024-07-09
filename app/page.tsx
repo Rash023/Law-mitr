@@ -1,8 +1,28 @@
-import Link from "next/link"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+"use client";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+dotenv.config()
+const API_SECRET="AIzaSyAekZwuOWfD418tH158IdFAxZinVeyKifc"
+const genAI = new GoogleGenerativeAI(API_SECRET);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const defaultPrompt="Make the answer short and only related to constitution of india and add a hyperlink to any article related to it, dont respond to questions not related to Law and democracy and say this is beyond my capabilities. Don't make any headings bold use simple texts for everything just use bullet points and numbers, never reveal your identity always say i am lawmitr when asked"
 
 export default function Component() {
+  const [query, setQuery] = useState(defaultPrompt);
+  const [response, setResponse] = useState("");
+
+  async function submitHandler() {
+    const finalPrompt=defaultPrompt+query;
+    const result = await model.generateContent(finalPrompt);
+    const responseText = result.response.text();
+    setResponse(responseText);
+  }
+
   return (
     <div>
       <header className="bg-primary shadow-md">
@@ -28,8 +48,13 @@ export default function Component() {
               type="search"
               placeholder="Enter your query..."
               className="block w-full pl-10 pr-4 py-2 rounded-md border-gray-300 focus:border-primary focus:ring-primary"
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
             />
-             <Button className="absolute right-0 top-0 h-full px-4 rounded-r-md">Search</Button>
+            <Button className="absolute right-0 top-0 h-full px-4 rounded-r-md" onClick={submitHandler}>
+              Search
+            </Button>
           </div>
           <div className="space-y-4">
             <Link
@@ -70,12 +95,14 @@ export default function Component() {
           <h2 className="text-2xl font-bold mb-4">Lawmitr</h2>
           <Textarea
             placeholder="Waiting for the response..."
+            value={response}
+            readOnly
             className="w-full h-80 resize-none rounded-md border-gray-300 focus:border-primary focus:ring-primary"
           />
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function SearchIcon(props) {
@@ -95,5 +122,5 @@ function SearchIcon(props) {
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
     </svg>
-  )
+  );
 }
