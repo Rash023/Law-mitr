@@ -4,23 +4,27 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import Markdown from "markdown-it";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import {questions} from "@/components/data/questions";
 import dotenv from "dotenv";
 dotenv.config()
 const API_SECRET="AIzaSyAekZwuOWfD418tH158IdFAxZinVeyKifc"
 const genAI = new GoogleGenerativeAI(API_SECRET);
 const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-const defaultPrompt="Make the answer short and only related to constitution of india and add a hyperlink to any article related to it, dont respond to questions not related to Law and democracy and say this is beyond my capabilities. Don't make any headings bold use simple texts for everything just use bullet points and numbers, never reveal your identity always say i am lawmitr when asked"
+const defaultPrompt="dont respond to questions not related to Law and democracy and say this is beyond my capabilities. Don't make any headings bold use simple texts for everything just use bullet points and numbers, never reveal your identity always say i am lawmitr when asked"
 
 export default function Component() {
   const [query, setQuery] = useState(defaultPrompt);
   const [response, setResponse] = useState("");
-
+  
   async function submitHandler() {
     const finalPrompt=defaultPrompt+query;
     const result = await model.generateContent(finalPrompt);
     const responseText = result.response.text();
-    setResponse(responseText);
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    const boldText = responseText.replace(boldRegex, '');
+    setResponse(boldText);
   }
 
   return (
@@ -57,42 +61,28 @@ export default function Component() {
             </Button>
           </div>
           <div className="space-y-4">
-            <Link
-              href="#"
-              className="block bg-muted/20 hover:bg-muted/30 transition-colors rounded-md p-4"
-              prefetch={false}
-            >
-              <h3 className="text-lg font-medium">What is the difference between a civil and criminal case?</h3>
-              <p className="text-muted-foreground text-sm">
-                I'm trying to understand the differences between civil and criminal cases. Can someone explain the key
-                distinctions?
-              </p>
-            </Link>
-            <Link
-              href="#"
-              className="block bg-muted/20 hover:bg-muted/30 transition-colors rounded-md p-4"
-              prefetch={false}
-            >
-              <h3 className="text-lg font-medium">How do I file a small claims lawsuit?</h3>
-              <p className="text-muted-foreground text-sm">
-                I have a dispute with a local business and want to file a small claims case. What are the steps I need
-                to take?
-              </p>
-            </Link>
-            <Link
-              href="#"
-              className="block bg-muted/20 hover:bg-muted/30 transition-colors rounded-md p-4"
-              prefetch={false}
-            >
-              <h3 className="text-lg font-medium">Can I sue someone for defamation?</h3>
-              <p className="text-muted-foreground text-sm">
-                Someone has been spreading false rumors about me online. Do I have grounds to sue them for defamation?
-              </p>
-            </Link>
+          {questions.map((data, index) => (
+  <Link
+    key={index}
+    href="#"
+    className="block bg-muted/20 hover:bg-muted/30 transition-colors rounded-md p-4"
+    prefetch={false}
+    onClick={()=>{
+      setQuery(data.prompt);
+      submitHandler();
+    }}
+  >
+    <h3 className="text-lg font-medium">{data.heading}</h3>
+    <p className="text-muted-foreground text-sm">
+      {data.prompt}
+    </p>
+  </Link>
+))}
+
           </div>
         </div>
         <div className="bg-background rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-4">Lawmitr</h2>
+          <h2 className="text-2xl font-bold mb-4">Answers</h2>
           <Textarea
             placeholder="Waiting for the response..."
             value={response}
