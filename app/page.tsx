@@ -95,7 +95,7 @@ export default function Component() {
   );
 }
 
-function SearchIcon(props) {
+function SearchIcon(props:any) {
   return (
     <svg
       {...props}
